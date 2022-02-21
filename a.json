@@ -1,0 +1,27 @@
+{
+    "success": {
+        "total": 1
+    },
+    "contents": {
+        "jokes": [
+            {
+                "description": "Joke of the day ",
+                "language": "en",
+                "background": "",
+                "category": "jod",
+                "date": "2022-02-20",
+                "joke": {
+                    "title": "Raindrop Conversation ",
+                    "lang": "en",
+                    "length": "77",
+                    "clean": "1",
+                    "racial": "0",
+                    "date": "2022-02-20",
+                    "id": "jEJ_2Er6zkXXYnRnk1SVLAeF",
+                    "text": "Q: What did one raindrop say to the other?\r\nA: Two's company, three's a cloud"
+                }
+            }
+        ],
+        "copyright": "2019-20 https:\/\/jokes.one"
+    }
+}
