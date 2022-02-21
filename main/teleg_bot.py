@@ -1,5 +1,5 @@
 from email import message
-from telegram import Update, Chat, InlineQueryResultArticle, InputTextMessageContent
+from telegram import Update, Bot, Chat, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CallbackContext, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 from config import TOKEN
 import logging

@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 #
-DEBUG = True
+DEBUG = False
 #
 # Telegram variables
 TOKEN = os.getenv("TOKEN")
@@ -21,7 +21,7 @@ TOKEN = os.getenv("TOKEN")
 #PASSWORD = os.getenv("PASSWORD")
 #print(USERNAME, PASSWORD, TOKEN)
 #
-#WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 #
 #bot = telebot.TeleBot(TOKEN, threaded=True)
 #
