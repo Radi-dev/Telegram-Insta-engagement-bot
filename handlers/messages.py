@@ -2,7 +2,10 @@ from telegram import Update, InlineQueryResultArticle, InputTextMessageContent
 from telegram.ext import Updater, CallbackContext, CommandHandler, MessageHandler, Filters, InlineQueryHandler
 
 
-def echo(update: Update, context: CallbackContext):
+update1 = Update
+
+
+def echo(update: update1, context: CallbackContext):
     """
     Checking The User's Message Within The Licensed Group
     """
@@ -11,7 +14,7 @@ def echo(update: Update, context: CallbackContext):
     if update.message.chat.type == "group" or update.message.chat.type == "supergroup":
 
         # Check the message format
-        text = update.message.text
+        text = update.message.text.encode('utf-8').decode()
 
         message = text.split(" ")
 
@@ -24,9 +27,9 @@ def echo(update: Update, context: CallbackContext):
 
         if len(message) != 3:
             update.message.reply_text(f"""
-Wrong Format! The right format is
-{message_format}
-                """, disable_web_page_preview=True)
+                        Wrong Format! The right format is
+                        {message_format}
+                                        """, disable_web_page_preview=True)
 
         elif len(message[2].strip("/").split("/")) == 5:
 
@@ -35,7 +38,12 @@ Wrong Format! The right format is
 
             #action = Action(username, link)
             try:
-                print("doing action")
+                # ----test async
+                # for i in range(10000):
+                #    print("doing action")
+                #    print(i**i)
+                # ----end test async
+
                 # action.get_user_id()
                 #post = action.get_media_id()
                 post = None  # nein
@@ -45,5 +53,5 @@ Wrong Format! The right format is
 
             if post is None:
                 update.message.reply_text(
-                    f"This post was not found in {username}'s timeline feed", disable_web_page_preview=True
+                    f"This post was not found in the timeline feed of {username}", disable_web_page_preview=True
                 )

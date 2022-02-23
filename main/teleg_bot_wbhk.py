@@ -9,11 +9,9 @@ import time
 from handlers.messages import echo, update1
 from queue import Queue
 from threading import Thread
+#from app import update1
 
 
-updater = Updater(token=TOKEN, use_context=True, workers=32)
-dispatcher = updater.dispatcher
-bot = Bot(token=TOKEN)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
@@ -51,6 +49,22 @@ start_handler = CommandHandler('start', start, run_async=True)
 echo_handler = MessageHandler(Filters.text & (
     ~Filters.command), echo, run_async=True)
 inline_caps_handler = InlineQueryHandler(inline_caps, run_async=True)
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(echo_handler)
-dispatcher.add_handler(inline_caps_handler)
+
+update_queue = Queue()
+bot = Bot(token=TOKEN)
+dispatcher = Dispatcher(bot, update_queue)
+
+
+def setup_for_Flask():
+
+    ##### Register handlers here #####
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(echo_handler)
+    dispatcher.add_handler(inline_caps_handler)
+    # Start the thread
+    thread = Thread(target=dispatcher.start, name='dispatcher')
+    thread.start()
+    return (update_queue, dispatcher)
+
+
+# dispatch()
