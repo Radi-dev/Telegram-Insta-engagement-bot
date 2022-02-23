@@ -27,8 +27,8 @@ def echo(update: update1, context: CallbackContext):
 
         if len(message) != 3:
             update.message.reply_text(f"""
-                        Wrong Format! The right format is
-                        {message_format}
+Wrong Format! The right format is
+{message_format}
                                         """, disable_web_page_preview=True)
 
         elif len(message[2].strip("/").split("/")) == 5:
@@ -39,9 +39,9 @@ def echo(update: update1, context: CallbackContext):
             #action = Action(username, link)
             try:
                 # ----test async
-                # for i in range(10000):
-                #    print("doing action")
-                #    print(i**i)
+                for i in range(10000):
+                    print("doing action")
+                    print(i**i)
                 # ----end test async
 
                 # action.get_user_id()
