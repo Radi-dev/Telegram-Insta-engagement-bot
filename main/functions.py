@@ -1,4 +1,7 @@
-from config import *
+from config import client, insta, USERNAME, PASSWORD, ADMIN_ID, bot
+import time
+import json
+import telegram
 
 
 class Action(object):
@@ -11,7 +14,7 @@ class Action(object):
         self.comments = 0  # Marking the posts the user has commented on
 
     def get_user_id(self):
-        "Returns The User Instagram's ID"
+        "Returns The user's Instagram ID"
 
         data = client.username_info(self.user)
         self.insta_id = data['user']['pk']
@@ -46,13 +49,15 @@ class Action(object):
 
     def get_list(self):
         "Gets the curent list for checking"
-        file = open("main/list.json", 'rb')
-        # print(file.read())
-        try:
-            data = pickle.load(file)
-        except EOFError as e:
-            data = []
-        file.close()
+        with open("main/list.json", 'a+') as f:
+            pass
+        with open("main/list.json", 'r') as f:
+            # print(file.read())
+            try:
+                #data = pickle.load(f)
+                data = json.loads(f.read())
+            except EOFError:
+                data = []
         return data
 
     def check_likes(self):
@@ -86,12 +91,15 @@ class Action(object):
         "Returns the user status of number of likes"
 
         # Get the susbcribers
-        file = open("main/subscribers.json", "rb")
-        try:
-            subscribers = pickle.load(file)
-        except EOFError as e:
-            return True
-        file.close()
+        with open("main/subscribers.json", 'a+') as f:
+            pass
+        with open("main/subscribers.json", 'r') as f:
+            # print(file.read())
+            try:
+                #data = pickle.load(f)
+                subscribers = json.loads(f.read())
+            except EOFError:
+                return True
 
         if self.likes == len(subscribers) and self.comments == len(subscribers):
             return True
@@ -123,10 +131,8 @@ class Action(object):
                 current_list.append(user)
         except IndexError:
             current_list.append(user)
-
-        file = open("main/list.json", "wb")
-        pickle.dump(current_list, file)
-        file.close()
+        with open("main/list.json", "w") as f:
+            json.dump(current_list, f)
 
 
 class Subscriber(object):
@@ -135,12 +141,15 @@ class Subscriber(object):
 
     def get_subscribers(self):
         "Return The List of subscribers"
-        self.file = open("main/subscribers.json", "rb")
-        try:
-            data = pickle.load(self.file)
-        except EOFError as e:
-            data = []
-        self.file.close
+        with open("main/subscribers.json", 'a+') as self.file:
+            pass
+        with open("main/subscribers.json", 'r') as self.file:
+            # print(file.read())
+            try:
+                #data = pickle.load(f)
+                data = json.loads(self.file.read())
+            except EOFError:
+                data = []
         return list(data)
 
     def activate(self, user_obj):
@@ -154,9 +163,9 @@ class Subscriber(object):
                 "Already a subscriber."
             )
         else:
-            self.file = open("main/subscribers.json", "wb")
+            self.file = open("main/subscribers.json", "w")
             users.append(user)
-            pickle.dump(users, self.file)
+            json.dump(users, self.file)
             self.file.close()
             return bot.send_message(
                 int(ADMIN_ID),
@@ -177,7 +186,7 @@ class Subscriber(object):
         else:
             self.file = open("main/subscribers.json", "wb")
             users.remove(user)
-            pickle.dump(users, self.file)
+            json.dump(users, self.file)
             self.file.close()
             return bot.send_message(
                 int(ADMIN_ID),

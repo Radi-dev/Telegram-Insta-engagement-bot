@@ -3,12 +3,9 @@ from config import os, TOKEN, DEBUG, WEBHOOK_URL
 from waitress import serve
 from main.teleg_bot import updater, bot, Update, update1
 from main.teleg_bot_wbhk import dispatcher, setup_for_Flask
-#from handlers.messages import update1
 
 
 app = Flask(__name__)
-
-#update1 = None
 
 
 @app.route('/' + TOKEN, methods=['POST', 'GET'])
