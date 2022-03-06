@@ -7,8 +7,14 @@ a = telegram.InlineKeyboardButton(text=emoji.emojize(
 b = telegram.InlineKeyboardButton(text=emoji.emojize(
     ":memo: Deactivate Subscriber", use_aliases=True), callback_data="deactivate")
 c = telegram.InlineKeyboardButton(text=emoji.emojize(
-    ":scroll: Send Advertisement", use_aliases=True), callback_data="ad")
-keyboard = telegram.InlineKeyboardMarkup([[a, b], [c]])
+    ":loudspeaker: Send Advertisement", use_aliases=True), callback_data="ad")
+# d = telegram.InlineKeyboardButton(text=emoji.emojize(
+#    ":scroll: Send Advertisement", use_aliases=True), callback_data="ad")
+e = telegram.InlineKeyboardButton(text=emoji.emojize(
+    ":boy: Subscribers List", use_aliases=True), callback_data="subs")
+f = telegram.InlineKeyboardButton(text=emoji.emojize(
+    ":clipboard: Dx15 List", use_aliases=True), callback_data="list")
+keyboard = telegram.InlineKeyboardMarkup([[a, b], [c], [e, f]])
 
 # @bot.message_handler(commands=['admin', 'panel'])
 

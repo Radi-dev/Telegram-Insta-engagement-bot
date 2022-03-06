@@ -1,7 +1,7 @@
 from flask import Flask, request
 from config import os, TOKEN, DEBUG, WEBHOOK_URL
 from waitress import serve
-from main.teleg_bot import updater, bot, Update, update1
+from main.teleg_bot import updater, bot, Update
 from main.teleg_bot_wbhk import dispatcher, setup_for_Flask
 from handlers.deleter import delete
 
@@ -27,7 +27,7 @@ def reset_webhook():
 
 # All false to use flask builting
 # Set use_polling true for polling
-use_polling = False
+use_polling = True
 # Set only use_builtin_server true for python telegram bot's builtin test server
 use_builtin_server = False
 # Set only use_waitress_server true for production server

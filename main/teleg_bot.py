@@ -1,16 +1,17 @@
 from email import message
 from telegram import Update, Bot, Chat, InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher
+from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, CommandHandler, ConversationHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher
 from config import TOKEN
 import logging
 import requests
 import random
 import time
-from handlers.messages import echo, update1
+from handlers.messages import echo
 from queue import Queue
 from threading import Thread
 from handlers.panel import handle_admin
-from handlers.callbacks import callback_answer
+from handlers.callbacks import callback_answer, send_ad
+from.functions import Subscriber
 
 
 updater = Updater(token=TOKEN, use_context=True, workers=32)
@@ -19,19 +20,51 @@ bot = Bot(token=TOKEN)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
+subscriber = Subscriber()
 
-def start(update: update1, context: CallbackContext):
+
+def start(update: Update, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!", reply_to_message_id=update.message.message_id)
 
 
-def calbck(update: update1, context: CallbackContext):
+def cancel(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    msg = "cancelled"
+    update.message.reply_text(msg)
+    return ConversationHandler.END
+
+
+def send_adv(update: Update, context: CallbackContext):
+    send_ad(update.message)
+    return ConversationHandler.END
+
+
+def subscriber_activate(update: Update, context: CallbackContext):
+    subscriber.activate(update.message)
+    return ConversationHandler.END
+
+
+def subscriber_deactivate(update: Update, context: CallbackContext):
+    subscriber.deactivate(update.message)
+    return ConversationHandler.END
+
+
+def calbcks(update: Update, context: CallbackContext):
     # context.bot.send_message(
     #    chat_id=update.effective_chat.id, text=update.callback_query.data)
-    callback_answer(update.callback_query)
+    return callback_answer(update.callback_query)
 
 
-def admin(update: update1, context: CallbackContext):
+conv_handler = ConversationHandler(
+    entry_points=[CallbackQueryHandler(calbcks, run_async=True)],
+    states={"ad": [MessageHandler(Filters.text, send_adv)], "activate": [
+        MessageHandler(Filters.text, subscriber_activate)], "deactivate": [
+        MessageHandler(Filters.text, subscriber_deactivate)], },
+    fallbacks=[CommandHandler('cancel', cancel)])
+
+
+def admin(update: Update, context: CallbackContext):
     if update.message.chat.type == "private":
         handle_admin(update.message)
    # context.bot.send_message(
@@ -47,7 +80,7 @@ def admin(update: update1, context: CallbackContext):
 #        chat_id=update.effective_chat.id, text=postte)
 
 
-def inline_caps(update: update1, context: CallbackContext):
+def inline_caps(update: Update, context: CallbackContext):
     query = update.inline_query.query
     if not query:
         return
@@ -62,20 +95,23 @@ def inline_caps(update: update1, context: CallbackContext):
     context.bot.answer_inline_query(update.inline_query.id, results)
 
 
-def onjoin(update: update1, context: CallbackContext):
+def onjoin(update: Update, context: CallbackContext):
     context.bot.delete_message(
         chat_id=update.message.chat_id, message_id=update.message.message_id)
 
 
 join_handler = MessageHandler(Filters.status_update, onjoin)
 start_handler = CommandHandler('start', start, run_async=True)
-calbck_handler = CallbackQueryHandler(calbck, run_async=True)
+#calbcks_handler = CallbackQueryHandler(calbcks, run_async=True)
 admin_handler = CommandHandler('admin', admin, run_async=True)
 echo_handler = MessageHandler(Filters.text & (
     ~Filters.command), echo, run_async=True)
 inline_caps_handler = InlineQueryHandler(inline_caps, run_async=True)
+
+
 dispatcher.add_handler(start_handler)
-dispatcher.add_handler(calbck_handler)
+dispatcher.add_handler(conv_handler)
+# dispatcher.add_handler(calbcks_handler)
 dispatcher.add_handler(admin_handler)
 dispatcher.add_handler(echo_handler)
 dispatcher.add_handler(inline_caps_handler)

@@ -8,14 +8,13 @@ import time
 from config import ADMIN_USERNAME
 from .deleter import add_to_delete_que
 
-update1 = Update
 
 a = telegram.InlineKeyboardButton(text=emoji.emojize(
     ":scroll: Dx15 List", use_aliases=True), callback_data="list")
 keyboard = telegram.InlineKeyboardMarkup([[a]])
 
 
-def echo(update: update1, context: CallbackContext):
+def echo(update: Update, context: CallbackContext):
     """
     Checking The User's Message Within The Licensed Group
     """

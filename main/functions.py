@@ -181,18 +181,24 @@ class Subscriber(object):
 
     def get_subscribers(self):
         "Return The List of subscribers"
-        with open("main/subscribers.json", 'a+') as self.file:
-            try:
-                #data = pickle.load(f)
-                data = json.loads(self.file.read())
-            except EOFError:
-                data = []
+        try:
+            with open("main/subscribers.json", 'r') as self.file:
+                try:
+                    #data = pickle.load(f)
+                    data = json.loads(self.file.read())
+                except EOFError as e:
+                    data = []
+        except:
+            subscribers = INITIAL_SUBS
+            with open("main/subscribers.json", 'w+') as self.file:
+                json.dump(subscribers, self.file)
         return list(data)
 
     def activate(self, user_obj):
         "Adds user handle to data storage"
         user = user_obj.text
         users = self.get_subscribers()
+        print("users11", users)
 
         if user in users:
             return bot.send_message(
@@ -202,6 +208,7 @@ class Subscriber(object):
         else:
             self.file = open("main/subscribers.json", "w")
             users.append(user)
+            print("users", users)
             json.dump(users, self.file)
             self.file.close()
             return bot.send_message(

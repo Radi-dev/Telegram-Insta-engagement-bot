@@ -75,30 +75,40 @@ def callback_answer(call):
             "Paste your advestisement writing below to post to Dx15 Engagement Group....",
             reply_markup=force_reply
         )
-
-        bot.register_next_step_handler(question, send_ad)
+        return "ad"
+        #bot.register_next_step_handler(question, send_ad)
 
     elif call.data == "activate":
 
-        subscriber = Subscriber().activate
+        #subscriber = Subscriber().activate
         question = bot.send_message(
             int(ADMIN_ID),
             "To add a new subscriber, paste the instagram username below",
             reply_markup=force_reply
         )
-
-        bot.register_next_step_handler(question, subscriber)
+        return "activate"
+        #bot.register_next_step_handler(question, subscriber)
 
     elif call.data == "deactivate":
-        subscriber = Subscriber().deactivate
+        #subscriber = Subscriber().deactivate
         question = bot.send_message(
             int(ADMIN_ID),
             "To deactivate a subscriber, paste the instagram username below",
             reply_markup=force_reply
         )
-
-        bot.register_next_step_handler(question, subscriber)
-
+        return "deactivate"
+        #bot.register_next_step_handler(question, subscriber)
+    elif call.data == "subs":
+        data = Subscriber().get_subscribers()
+        messg = ''.join([f"{data.index(i)+1}) {i} \n" for i in data])
+        bot.send_message(
+            int(ADMIN_ID),
+            f"""<b>List of all Approved Subscribers</b>
+{messg}
+        """,
+            parse_mode=telegram.ParseMode.HTML,
+            disable_web_page_preview=True
+        )
     else:
         pass
 

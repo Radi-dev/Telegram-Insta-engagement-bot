@@ -3,7 +3,8 @@ from telegram.ext import Dispatcher
 from config import TOKEN
 from queue import Queue
 from threading import Thread
-from .teleg_bot import start_handler, inline_caps_handler, echo_handler, admin_handler, calbck_handler
+# , calbcks_handler
+from .teleg_bot import start_handler, inline_caps_handler, echo_handler, admin_handler, conv_handler
 
 update_queue = Queue()
 bot = Bot(token=TOKEN)
@@ -14,7 +15,8 @@ def setup_for_Flask():
 
     ##### Register handlers here #####
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(calbck_handler)
+    dispatcher.add_handler(conv_handler)
+    # dispatcher.add_handler(calbcks_handler)
     dispatcher.add_handler(admin_handler)
     dispatcher.add_handler(echo_handler)
     dispatcher.add_handler(inline_caps_handler)
