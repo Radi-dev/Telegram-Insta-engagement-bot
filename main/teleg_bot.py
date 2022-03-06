@@ -1,6 +1,6 @@
 from email import message
 from telegram import Update, Bot, Chat, InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import Updater, CallbackContext, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher
+from telegram.ext import Updater, CallbackContext, CallbackQueryHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, Dispatcher
 from config import TOKEN
 import logging
 import requests
@@ -9,6 +9,8 @@ import time
 from handlers.messages import echo, update1
 from queue import Queue
 from threading import Thread
+from handlers.panel import handle_admin
+from handlers.callbacks import callback_answer
 
 
 updater = Updater(token=TOKEN, use_context=True, workers=32)
@@ -21,6 +23,19 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 def start(update: update1, context: CallbackContext):
     context.bot.send_message(
         chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!", reply_to_message_id=update.message.message_id)
+
+
+def calbck(update: update1, context: CallbackContext):
+    # context.bot.send_message(
+    #    chat_id=update.effective_chat.id, text=update.callback_query.data)
+    callback_answer(update.callback_query)
+
+
+def admin(update: update1, context: CallbackContext):
+    if update.message.chat.type == "private":
+        handle_admin(update.message)
+   # context.bot.send_message(
+   #     chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!", reply_to_message_id=update.message.message_id)
 
 
 # def echo(update: Update, context: CallbackContext):
@@ -47,10 +62,21 @@ def inline_caps(update: update1, context: CallbackContext):
     context.bot.answer_inline_query(update.inline_query.id, results)
 
 
+def onjoin(update: update1, context: CallbackContext):
+    context.bot.delete_message(
+        chat_id=update.message.chat_id, message_id=update.message.message_id)
+
+
+join_handler = MessageHandler(Filters.status_update, onjoin)
 start_handler = CommandHandler('start', start, run_async=True)
+calbck_handler = CallbackQueryHandler(calbck, run_async=True)
+admin_handler = CommandHandler('admin', admin, run_async=True)
 echo_handler = MessageHandler(Filters.text & (
     ~Filters.command), echo, run_async=True)
 inline_caps_handler = InlineQueryHandler(inline_caps, run_async=True)
 dispatcher.add_handler(start_handler)
+dispatcher.add_handler(calbck_handler)
+dispatcher.add_handler(admin_handler)
 dispatcher.add_handler(echo_handler)
 dispatcher.add_handler(inline_caps_handler)
+dispatcher.add_handler(join_handler)

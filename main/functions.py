@@ -1,7 +1,10 @@
-from config import client, insta, USERNAME, PASSWORD, ADMIN_ID, bot
+from config import insta, USERNAME, PASSWORD, ADMIN_ID, bot, INITIAL_LIST, INITIAL_SUBS  # , client
 import time
 import json
 import telegram
+from .insta_login import client_session_enabled
+
+client = client_session_enabled()
 
 
 class Action(object):
@@ -22,7 +25,6 @@ class Action(object):
     def get_media_id(self):
         "Returns The Target Media ID"
         code = self.url.strip("/").split("/")[-1]
-        print("just code: "+code)
 
         # ## Check user feed for post relating to this code
         # data = client.user_feed(self.insta_id).get('items')
@@ -41,6 +43,7 @@ class Action(object):
             # authentication supported
             time.sleep(3)
             insta.with_credentials(USERNAME, PASSWORD)
+
             insta.login()
             data = insta.get_medias_by_code(code)
 
@@ -49,15 +52,17 @@ class Action(object):
 
     def get_list(self):
         "Gets the curent list for checking"
-        with open("main/list.json", 'a+') as f:
-            pass
-        with open("main/list.json", 'r') as f:
-            # print(file.read())
-            try:
-                #data = pickle.load(f)
-                data = json.loads(f.read())
-            except EOFError:
-                data = []
+        try:
+            with open("main/list.json", 'r') as f:
+                try:
+                    read = f.read()
+                    data = json.loads(read)
+                except EOFError as e:
+                    data = []
+        except:
+            data = INITIAL_LIST
+            with open("main/list.json", 'w+') as fe:
+                json.dump(data, fe)
         return data
 
     def check_likes(self):
@@ -87,28 +92,63 @@ class Action(object):
                 else:
                     pass
 
+    def remove_user(self):
+        try:
+            with open("main/subscribers.json", 'r') as f:
+                try:
+                    read = f.read()
+                    subscribers = json.loads(read)
+                except EOFError as e:
+                    True
+        except:
+            subscribers = INITIAL_SUBS
+        user = self.user
+        users = subscribers
+
+        try:
+            with open("main/subscribers.json", "w") as f:
+                users.remove(user)
+                json.dump(users, f)
+                f.close()
+        except:
+            return
+
     def get_status(self):
         "Returns the user status of number of likes"
 
         # Get the susbcribers
-        with open("main/subscribers.json", 'a+') as f:
-            pass
-        with open("main/subscribers.json", 'r') as f:
-            # print(file.read())
-            try:
-                #data = pickle.load(f)
-                subscribers = json.loads(f.read())
-            except EOFError:
-                return True
 
-        if self.likes == len(subscribers) and self.comments == len(subscribers):
+        try:
+            with open("main/subscribers.json", 'r') as f:
+                try:
+                    read = f.read()
+                    subscribers = json.loads(read)
+                except EOFError as e:
+                    True
+        except:
+            subscribers = INITIAL_SUBS
+            with open("main/subscribers.json", 'w+') as fe:
+                json.dump(subscribers, fe)
+
+        list = self.get_list()
+        if self.likes == len(list) and self.comments == len(list):
+            # self.remove_user(subscribers)
             return True
 
         elif self.user in subscribers:
+            # self.remove_user(subscribers)
             return True
 
         else:
-            return f"You liked {self.likes} pictures and {self.comments} comments out of {len(subscribers)}"
+            return f"You liked {self.likes} pictures and {self.comments} comments out of {len(list)}"
+
+    def check_if_exists_in_list(self):
+        current_list = self.get_list()
+
+        media_ids = [i['media_id'] for i in current_list]
+        if self.media_id in media_ids:
+
+            return True
 
     def add_to_list(self):
         "Adds the user data to the list"
@@ -122,11 +162,11 @@ class Action(object):
             'media_url': self.url
         }
         try:
-            if len(current_list) >= 15:
+            if self.media_id in media_ids:
+                print("exists")
+            elif len(current_list) >= 15:
                 current_list.remove(current_list[0])
                 current_list.append(user)
-            elif self.media_id in media_ids:
-                pass
             else:
                 current_list.append(user)
         except IndexError:
@@ -142,9 +182,6 @@ class Subscriber(object):
     def get_subscribers(self):
         "Return The List of subscribers"
         with open("main/subscribers.json", 'a+') as self.file:
-            pass
-        with open("main/subscribers.json", 'r') as self.file:
-            # print(file.read())
             try:
                 #data = pickle.load(f)
                 data = json.loads(self.file.read())
@@ -184,7 +221,7 @@ class Subscriber(object):
                 "This user is not a subscriber"
             )
         else:
-            self.file = open("main/subscribers.json", "wb")
+            self.file = open("main/subscribers.json", "w")
             users.remove(user)
             json.dump(users, self.file)
             self.file.close()

@@ -3,6 +3,7 @@ from config import os, TOKEN, DEBUG, WEBHOOK_URL
 from waitress import serve
 from main.teleg_bot import updater, bot, Update, update1
 from main.teleg_bot_wbhk import dispatcher, setup_for_Flask
+from handlers.deleter import delete
 
 
 app = Flask(__name__)
@@ -13,6 +14,7 @@ def getMessage():
     update = Update.de_json(
         request.get_json(force=True), bot)
     dispatcher.process_update(update)
+    delete()
     return "running", 200
 
 
@@ -34,9 +36,8 @@ if __name__ == "__main__":
 
     if use_polling:
         # updater.bot.delete_webhook()
-        updater.start_polling()
         updater.bot.delete_webhook()
-        print(updater.bot.get_webhook_info())
+        updater.start_polling()
         print("*****************Start polling..*****************")
 
     elif use_builtin_server:
@@ -45,7 +46,7 @@ if __name__ == "__main__":
                               port=80,
                               webhook_url=WEBHOOK_URL + TOKEN,
                               )
-        print(updater.bot.get_webhook_info())
+
         print("*****************Using Pyteleg builtin server*****************")
         updater.idle()
     elif not use_waitress_server:
@@ -54,7 +55,6 @@ if __name__ == "__main__":
         print("*****************Using Flask builtin server*****************")
         updater.bot.delete_webhook()
         updater.bot.set_webhook(url=WEBHOOK_URL + TOKEN)
-        print(updater.bot.get_webhook_info())
         app.run(debug=DEBUG, host="0.0.0.0",
                 port=int(os.environ.get('PORT', 80)), threaded=True)
     else:
@@ -63,6 +63,5 @@ if __name__ == "__main__":
         print("*****************Using Waitress production server*****************")
         updater.bot.delete_webhook()
         updater.bot.set_webhook(url=WEBHOOK_URL + TOKEN)
-        print(updater.bot.get_webhook_info())
         serve(app, host='0.0.0.0', port=int(
             os.environ.get('PORT', 80)))

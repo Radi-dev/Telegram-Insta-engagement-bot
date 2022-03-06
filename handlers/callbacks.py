@@ -1,9 +1,10 @@
-from app import *
-from config import ADMIN_USERNAME
+from config import ADMIN_USERNAME, ADMIN_ID, GROUP_ID, bot, telegram
 from main.functions import Subscriber
+import json
+from .deleter import add_to_delete_que
+force_reply = telegram.ReplyKeyboardRemove(selective=False)
 
 
-@bot.callback_query_handler(func=lambda call: True)
 def callback_answer(call):
     """
     Button Response
@@ -11,12 +12,11 @@ def callback_answer(call):
     if call.data == "list":
 
         # Fetch List
-        file = open("main/list.json", 'rb')
-        data = pickle.load(file)
+        file = open("main/list.json", 'r')
+        data = json.loads(file.read())
         file.close()
         messg = ''.join([
-            f"{i+1}) {data[i].get('media_url')} " for i in range(len(data))])
-        print(messg)
+            f"{i+1}) {data[i].get('media_url')} \n" for i in range(len(data))])
         try:
             reply = bot.send_message(
                 call.message.chat.id,
@@ -58,15 +58,16 @@ def callback_answer(call):
                 disable_web_page_preview=True
             )
         except IndexError:
-            message = bot.send_message(
+            reply = bot.send_message(
                 call.message.chat.id,
                 f"<b>The Dx15 engagement list is almost complete! Contact @{ADMIN_USERNAME} to get registered to Global Trade Club community and grow your instagram presence</b>\n{messg}",
                 parse_mode=telegram.ParseMode.HTML,
                 disable_web_page_preview=True
             )
 
-        time.sleep(20)
-        bot.delete_message(call.message.chat.id, reply.message_id)
+        # time.sleep(20)
+        #bot.delete_message(call.message.chat.id, reply.message_id)
+        add_to_delete_que(call.message.chat.id, reply.message_id, max_time=20)
 
     elif call.data == "ad":
         question = bot.send_message(
@@ -108,7 +109,7 @@ def send_ad(msg):
 
     # Fetch List
     file = open("main/list.json", 'rb')
-    data = pickle.load(file)
+    data = json.loads(file.read())
     file.close()
 
     bot.send_message(
