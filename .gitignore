@@ -1,6 +1,7 @@
 insta_session.json
 list.json
 subscribers.json
+premium_subscribers.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

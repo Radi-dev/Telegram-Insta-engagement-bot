@@ -129,6 +129,17 @@ class Action(object):
             subscribers = INITIAL_SUBS
             with open("main/subscribers.json", 'w+') as fe:
                 json.dump(subscribers, fe)
+        try:
+            with open("main/premium_subscribers.json", 'r') as f:
+                try:
+                    read = f.read()
+                    premium_subscribers = json.loads(read)
+                except EOFError as e:
+                    True
+        except:
+            premium_subscribers = INITIAL_SUBS
+            with open("main/premium_subscribers.json", 'w+') as fe:
+                json.dump(premium_subscribers, fe)
 
         list = self.get_list()
         if self.likes == len(list) and self.comments == len(list):
@@ -136,6 +147,9 @@ class Action(object):
             return True
 
         elif self.user in subscribers:
+            # self.remove_user(subscribers)
+            return True
+        elif self.user in premium_subscribers:
             # self.remove_user(subscribers)
             return True
 
@@ -179,10 +193,11 @@ class Subscriber(object):
     def __init__(self):
         self.file = ''
 
-    def get_subscribers(self):
-        "Return The List of subscribers"
+    def get_subscribers(self, premium=False):
+        "Return The List of subscribers or premium subscribers if specified"
+        directory = "main/premium_subscribers.json" if premium else "main/subscribers.json"
         try:
-            with open("main/subscribers.json", 'r') as self.file:
+            with open(directory, 'r') as self.file:
                 try:
                     #data = pickle.load(f)
                     data = json.loads(self.file.read())
@@ -190,23 +205,23 @@ class Subscriber(object):
                     data = []
         except:
             subscribers = INITIAL_SUBS
-            with open("main/subscribers.json", 'w+') as self.file:
+            with open(directory, 'w+') as self.file:
                 json.dump(subscribers, self.file)
         return list(data)
 
-    def activate(self, user_obj):
+    def activate(self, user_obj, premium=False):
         "Adds user handle to data storage"
         user = user_obj.text
         users = self.get_subscribers()
         print("users11", users)
-
+        directory = "main/premium_subscribers.json" if premium else "main/subscribers.json"
         if user in users:
             return bot.send_message(
                 int(ADMIN_ID),
                 "Already a subscriber."
             )
         else:
-            self.file = open("main/subscribers.json", "w")
+            self.file = open(directory, "w")
             users.append(user)
             print("users", users)
             json.dump(users, self.file)
@@ -217,10 +232,11 @@ class Subscriber(object):
                 parse_mode=telegram.ParseMode.HTML,
             )
 
-    def deactivate(self, user_obj):
+    def deactivate(self, user_obj, premium=False):
         "removes user handle to data storage"
         user = user_obj.text
         users = self.get_subscribers()
+        directory = "main/premium_subscribers.json" if premium else "main/subscribers.json"
 
         if user not in users:
             return bot.send_message(
@@ -228,7 +244,7 @@ class Subscriber(object):
                 "This user is not a subscriber"
             )
         else:
-            self.file = open("main/subscribers.json", "w")
+            self.file = open(directory, "w")
             users.remove(user)
             json.dump(users, self.file)
             self.file.close()

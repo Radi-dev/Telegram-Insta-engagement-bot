@@ -47,14 +47,15 @@ Wrong Format! The right format is
             username = message[1].strip("@")
 
             action = Action(username, link)
-            try:
-                # ----test async
-                # for i in range(10000):
-                #    print("doing action")
-                #    print(i**i)
-                # ----end test async
 
-                action.get_user_id()
+            try:
+                try:
+                    action.get_user_id()
+                except:
+                    update.message.reply_text(
+                        f"User account {username} not found", disable_web_page_preview=True
+                    )
+                # action.get_user_id()
                 post = action.get_media_id()
             except:
                 post = None

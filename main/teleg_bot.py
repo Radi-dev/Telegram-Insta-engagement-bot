@@ -45,8 +45,18 @@ def subscriber_activate(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 
+def subscriber_activate_premium(update: Update, context: CallbackContext):
+    subscriber.activate(update.message, premium=True)
+    return ConversationHandler.END
+
+
 def subscriber_deactivate(update: Update, context: CallbackContext):
     subscriber.deactivate(update.message)
+    return ConversationHandler.END
+
+
+def subscriber_deactivate_premium(update: Update, context: CallbackContext):
+    subscriber.deactivate(update.message, premium=True)
     return ConversationHandler.END
 
 
@@ -60,7 +70,9 @@ conv_handler = ConversationHandler(
     entry_points=[CallbackQueryHandler(calbcks, run_async=True)],
     states={"ad": [MessageHandler(Filters.text, send_adv)], "activate": [
         MessageHandler(Filters.text, subscriber_activate)], "deactivate": [
-        MessageHandler(Filters.text, subscriber_deactivate)], },
+        MessageHandler(Filters.text, subscriber_deactivate)], "activate_premium": [
+        MessageHandler(Filters.text, subscriber_activate_premium)], "deactivate_premium": [
+        MessageHandler(Filters.text, subscriber_deactivate_premium)], },
     fallbacks=[CommandHandler('cancel', cancel)])
 
 

@@ -76,34 +76,58 @@ def callback_answer(call):
             reply_markup=force_reply
         )
         return "ad"
-        #bot.register_next_step_handler(question, send_ad)
 
     elif call.data == "activate":
 
-        #subscriber = Subscriber().activate
         question = bot.send_message(
             int(ADMIN_ID),
             "To add a new subscriber, paste the instagram username below",
             reply_markup=force_reply
         )
         return "activate"
-        #bot.register_next_step_handler(question, subscriber)
 
     elif call.data == "deactivate":
-        #subscriber = Subscriber().deactivate
+
         question = bot.send_message(
             int(ADMIN_ID),
             "To deactivate a subscriber, paste the instagram username below",
             reply_markup=force_reply
         )
         return "deactivate"
-        #bot.register_next_step_handler(question, subscriber)
+    elif call.data == "activate_premium":
+
+        question = bot.send_message(
+            int(ADMIN_ID),
+            "To add a new subscriber, paste the instagram username below",
+            reply_markup=force_reply
+        )
+        return "activate_premium"
+
+    elif call.data == "deactivate_premium":
+        question = bot.send_message(
+            int(ADMIN_ID),
+            "To deactivate_premium a subscriber, paste the instagram username below",
+            reply_markup=force_reply
+        )
+        return "deactivate_premium"
+
     elif call.data == "subs":
         data = Subscriber().get_subscribers()
         messg = ''.join([f"{data.index(i)+1}) {i} \n" for i in data])
         bot.send_message(
             int(ADMIN_ID),
-            f"""<b>List of all Approved Subscribers</b>
+            f"""<b>List of All Currently Approved Subscribers</b>
+{messg}
+        """,
+            parse_mode=telegram.ParseMode.HTML,
+            disable_web_page_preview=True
+        )
+    elif call.data == "subs_premium":
+        data = Subscriber().get_subscribers(premium=True)
+        messg = ''.join([f"{data.index(i)+1}) {i} \n" for i in data])
+        bot.send_message(
+            int(ADMIN_ID),
+            f"""<b>List of All Premium Subscribers</b>
 {messg}
         """,
             parse_mode=telegram.ParseMode.HTML,
